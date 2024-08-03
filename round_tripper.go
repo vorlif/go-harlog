@@ -3,7 +3,7 @@ package harlog
 import (
 	"bytes"
 	"encoding/base64"
-	"io/ioutil"
+	"io"
 	"log"
 	"mime"
 	"net/http"
@@ -138,7 +138,7 @@ func (h *Transport) preRoundTrip(r *http.Request, entry *Entry) error {
 			return err
 		}
 
-		reqBodyBytes, err := ioutil.ReadAll(reqBody)
+		reqBodyBytes, err := io.ReadAll(reqBody)
 		if err != nil {
 			return err
 		}
@@ -162,7 +162,7 @@ func (h *Transport) preRoundTrip(r *http.Request, entry *Entry) error {
 			if err != nil {
 				return err
 			}
-			r.Body = ioutil.NopCloser(bytes.NewBuffer(reqBodyBytes))
+			r.Body = io.NopCloser(bytes.NewBuffer(reqBodyBytes))
 
 			for k, v := range r.PostForm {
 				for _, s := range v {
@@ -178,7 +178,7 @@ func (h *Transport) preRoundTrip(r *http.Request, entry *Entry) error {
 			if err != nil {
 				return err
 			}
-			r.Body = ioutil.NopCloser(bytes.NewBuffer(reqBodyBytes))
+			r.Body = io.NopCloser(bytes.NewBuffer(reqBodyBytes))
 
 			for k, v := range r.MultipartForm.Value {
 				for _, s := range v {
@@ -221,7 +221,7 @@ func (h *Transport) postRoundTrip(r *http.Request, resp *http.Response, entry *E
 		return nil
 	}
 	respBody := resp.Body
-	respBodyBytes, err := ioutil.ReadAll(respBody)
+	respBodyBytes, err := io.ReadAll(respBody)
 	defer func() {
 		_ = respBody.Close()
 	}()
@@ -229,7 +229,7 @@ func (h *Transport) postRoundTrip(r *http.Request, resp *http.Response, entry *E
 	if err != nil {
 		return err
 	}
-	resp.Body = ioutil.NopCloser(bytes.NewBuffer(respBodyBytes))
+	resp.Body = io.NopCloser(bytes.NewBuffer(respBodyBytes))
 
 	mimeType := resp.Header.Get("Content-Type")
 	mediaType, _, err := mime.ParseMediaType(mimeType)
